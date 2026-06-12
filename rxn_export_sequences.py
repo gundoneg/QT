@@ -146,7 +146,11 @@ def main():
 
     print(f"Submitting retrosynthesis for: {args.smiles}", file=sys.stderr)
     response = rxn.predict_automatic_retrosynthesis(product=args.smiles)
-    prediction_id = response["prediction_id"]
+    prediction_id = response.get("prediction_id") if isinstance(response, dict) else None
+    if not prediction_id:
+        # Surface the API's actual reply (auth error, quota, bad SMILES, etc.)
+        # instead of a bare KeyError.
+        sys.exit(f"No prediction_id returned. Full API response:\n{response}")
 
     print("Waiting for results", end="", file=sys.stderr, flush=True)
     deadline = time.time() + args.timeout
