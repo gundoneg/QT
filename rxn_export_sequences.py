@@ -137,7 +137,12 @@ def main():
     if args.project_id:
         rxn.set_project(args.project_id)
     else:
-        rxn.create_project(f"retrosynthesis_export_{int(time.time())}")
+        resp = rxn.create_project(f"retrosynthesis_export_{int(time.time())}")
+        if not getattr(rxn, "project_id", None):
+            # Surface the real cause (auth failure, blocked host, etc.) instead
+            # of the cryptic "Project identifier has to be set first." later on.
+            detail = resp.get("response") if isinstance(resp, dict) else resp
+            sys.exit(f"Could not create RXN project: {detail}")
 
     print(f"Submitting retrosynthesis for: {args.smiles}", file=sys.stderr)
     response = rxn.predict_automatic_retrosynthesis(product=args.smiles)
