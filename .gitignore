@@ -1,0 +1,8 @@
+# Secrets — never commit API keys
+.rxn_key
+*.env
+
+# Generated output
+rxn_sequences.csv
+__pycache__/
+*.pyc
